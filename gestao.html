@@ -1,40 +1,33 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#10141d">
-<title>Futura Casa Pro | Gestão</title>
-<link rel="stylesheet" href="styles.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-<script src="data.js" defer></script>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
-<script src="app.js" defer></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101722">
+  <title>Futura Casa Pro | Gestão</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <script src="data.js" defer></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="" defer></script>
+  <script src="app.js" defer></script>
+  <script src="central-comercial.js" defer></script>
 </head>
-<body class="appDark">
-<header class="top">
-  <div class="top-inner">
-    <a class="logo" href="index.html"><img src="assets/futura-casa-logo-v1-1.webp" alt="Futura Casa Pro"><span class="sub">Compra guiada</span></a>
-    <nav class="nav">
-      <a class="" href="index.html">Vendas</a>
-      <a class="" href="central-comercial.html">Central IA</a>
-      <a class="active" href="gestao.html">Gestão</a>
-      <a class="" href="pos-venda.html">Pós-venda</a>
-      <a class="" href="ocorrencias.html">Ocorrências</a>
-    </nav>
-  </div>
-</header>
-<main>
-
-<section class="page">
-  <div class="page-inner">
-    <div class="page-title"><span class="badge">Gestão</span><h1>Painel de Gestão</h1><p>Visão comercial, ocorrências e atualização das obras.</p></div>
-    <div class="panel"><div class="panel-head"><h2>Gestão do empreendimento</h2><p>Dados atualizados conforme as interações da plataforma.</p></div><div class="panel-body" id="gestaoApp"></div></div>
-  </div>
-</section>
-
-</main>
-<div id="toast" class="toast"></div>
-<div id="modal" class="modal"></div>
+<body data-page="gestao">
+  <header class="top">
+    <div class="top-inner">
+      <div class="logo-wrap">
+        <button class="nav-toggle" aria-label="Abrir menu"><span></span></button>
+        <a href="index.html" class="logo-wrap" style="text-decoration:none">
+          <div class="logo-dot"></div>
+          <div class="brand-text"><span class="futura">Futura</span><span class="casa">Casa</span></div>
+        </a>
+        <div class="brand-sub"><b>Onde tudo começa</b><span>Central comercial, gestão e pós-venda em um só fluxo</span></div>
+      </div>
+      <div class="nav-shell"><nav class="nav"><a href="index.html" class="">Vendas</a><a href="central-comercial.html" class="">Central IA</a><a href="gestao.html" class="active">Gestão</a><a href="pos-venda.html" class="">Pós-venda</a><a href="ocorrencias.html" class="">Ocorrências</a></nav></div>
+    </div>
+  </header>
+  <main id="appRoot"></main>
+  <div id="toast" class="toast"></div>
+  <div id="modal" class="modal"></div>
 </body>
 </html>
