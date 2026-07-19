@@ -1,0 +1,2 @@
+Futura Casa Pro v4.0 Full publicada em produção em 19/07/2026.
+Base: commit 41c83afc3932cc46504d8fe113898f61a3cff087.
