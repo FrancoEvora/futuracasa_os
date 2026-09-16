@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - '.github/workflows/fcp-release-check.yml'
+      - 'verify-portal.mjs'
   workflow_dispatch:
 permissions:
   contents: read
@@ -12,6 +13,8 @@ jobs:
     timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Build isolated public portal
         run: node build-portal.mjs
       - name: Verify live public services with synthetic data
