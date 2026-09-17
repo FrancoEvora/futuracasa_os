@@ -4,7 +4,11 @@ let projects=[],type='',favoritesOnly=false,compare=new Set(),favorites=new Set(
 try{favorites=new Set(JSON.parse(localStorage.getItem('fcp-favorites')||'[]').filter(v=>typeof v==='string'));const s=JSON.parse(sessionStorage.getItem('fcp-conversation')||'null');if(s&&new Date(s.expires_at)>new Date()){session=s;profile=s.profile||emptyProfile();}}catch{}
 function toast(text){$('#toast').textContent=text;$('#toast').hidden=false;clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('#toast').hidden=true,4500);}
 async function publicRead(path){const r=await fetch(cfg.url+'/rest/v1/'+path,{headers,signal:AbortSignal.timeout(12000)});if(!r.ok)throw new Error('Catálogo temporariamente indisponível.');return r.json();}
-async function api(body){const r=await fetch(cfg.url+'/functions/v1/futura-portal',{method:'POST',headers,body:JSON.stringify(body),signal:AbortSignal.timeout(45000)});let d;try{d=await r.json();}catch{throw new Error('Não foi possível conectar ao atendimento. Tente novamente.');}if(!r.ok)throw new Error(d.error||d.message||'Não foi possível concluir.');return d;}
+async function api(body){
+ const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),body.action==='chat'?55000:25000);
+ try{const r=await fetch('/api/bia',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:controller.signal,credentials:'same-origin',cache:'no-store'});let d;try{d=await r.json();}catch{throw new Error('O serviço de atendimento não respondeu corretamente. Atualize a página e tente novamente.');}if(!r.ok)throw new Error(d.error||d.message||'Não foi possível concluir o atendimento. Tente novamente.');return d;
+ }catch(err){if(controller.signal.aborted||err.name==='AbortError'||err.name==='TimeoutError')throw new Error('A conexão com a Bia demorou mais que o esperado. Tente novamente em instantes.');if(err instanceof TypeError)throw new Error(navigator.onLine===false?'Você está sem conexão com a internet. Reconecte e tente novamente.':'Não foi possível conectar à Bia. Atualize a página e tente novamente. Você também pode usar o botão “Falar com a equipe”.');throw err;}finally{clearTimeout(timer);}
+}
 const credentials=()=>session?{session_id:session.session_id,token:session.token}:{};
 function remember(){if(session){session.profile=profile;try{sessionStorage.setItem('fcp-conversation',JSON.stringify(session));}catch{}}}
 function image(p){return safeURL(p.image_url)||new URL('./assets/hero.webp',location.href).href;}
