@@ -1,0 +1,31 @@
+name: Enterprise Bia production browser
+on:
+  push:
+    paths:
+      - '.github/workflows/bia-enterprise-browser.yml'
+      - 'tests/bia-enterprise-browser.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install browser test client
+        run: npm install --prefix /tmp/fcp-browser --no-audit --no-fund playwright@1.58.2
+      - name: Verify published native Enterprise Bia
+        run: node tests/bia-enterprise-browser.mjs
+      - name: Keep verification and screenshots without customer data
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bia-enterprise-production-browser
+          path: |
+            bia-enterprise-browser.json
+            bia-enterprise-desktop.png
+            bia-enterprise-mobile.png
+          retention-days: 3
