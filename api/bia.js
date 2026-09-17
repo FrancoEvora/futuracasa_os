@@ -6,7 +6,7 @@ const config=fs.readFileSync(path.join(__dirname,'../portal-v1/config.js'),'utf8
 const publicKey=config.match(/key:'([^']+)'/)?.[1];
 const destination='https://qsdffayasuzsmngteika.supabase.co/functions/v1/futura-portal';
 const canonical='https://futuracasa-os.vercel.app';
-const allowed=new Set([canonical,'https://futuracasa-os-franco-3095s-projects.vercel.app','https://futuracasa-os-git-main-franco-3095s-projects.vercel.app','https://futuracasa.terraragroup.com.br']);
+const allowed=new Set([canonical,'https://futuracasa-os-franco-3095s-projects.vercel.app','https://futuracasa-os-git-main-franco-3095s-projects.vercel.app','https://futuracasa.terraragroup.com.br','https://www.futuracasa.com.br','https://futuracasa.com.br']);
 const actions=new Set(['health','start','chat','erase','lead']);
 const one=v=>Array.isArray(v)?v[0]:v||'';
 module.exports=async(req,res)=>{
