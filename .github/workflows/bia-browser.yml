@@ -1,0 +1,29 @@
+name: Bia browser connection
+on:
+  push:
+    paths:
+      - '.github/workflows/bia-browser.yml'
+      - 'tests/bia-browser.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install browser test client
+        run: npm install --prefix /tmp/fcp-browser --no-audit --no-fund playwright@1.58.2
+      - name: Test published browser connection
+        run: node tests/bia-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bia-browser-connection
+          path: |
+            bia-browser-report.json
+            bia-browser.png
+          retention-days: 3
