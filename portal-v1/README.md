@@ -1,42 +1,57 @@
-# Futura Casa — Portal de vendas
+# Futura Casa — Portal de vendas 2.0
 
-Versão publicada em 16/09/2026.
+## Endereços e publicação
 
-- Portal: https://futuracasa-os.vercel.app/
-- Gestão: https://futuracasa-os.vercel.app/admin.html
-- Vercel: projeto `futuracasa-os`, conectado à branch `main` deste repositório.
-- Build: `node build-portal.mjs`. Somente `dist/` é publicado.
+- Portal: https://www.futuracasa.com.br/
+- Alternativa: https://futuracasa-os.vercel.app/
+- Gestão do catálogo e formulários: https://www.futuracasa.com.br/admin.html
+- Central da Bia: https://enterprise.terraragroup.com.br/bia/gestao
+- Landing oficial Solaris: https://enterprise.terraragroup.com.br/atendimento/solaris/cadastro
 
-## Publicação isolada
+Vercel: projeto `futuracasa-os`, branch `main`, build `node build-portal.mjs`. Somente `dist/` e a função autorizada `api/bia.js` integram a publicação. O Enterprise não é servido dentro deste projeto. As rotas públicas não concedem acesso administrativo ao Enterprise.
 
-O código anterior permanece no repositório para referência, mas não integra a saída de publicação. Não remova a configuração `outputDirectory: dist` do `vercel.json` sem revisar a segurança. O Enterprise não é publicado dentro deste portal.
+## Uma única Bia
 
-## Operação
+A conversa do portal usa exatamente o gateway `enterprise-bia-agent-gateway`, o mesmo invocado pelo worker `bia-whatsapp-replies`. Não mantém outro prompt, modelo, vetor de conhecimento ou agente guiado como substituto.
 
-O portal oferece catálogo vivo, filtros, favoritos locais, comparação, detalhes, pedidos de atendimento/visita/proposta e um simulador matemático de desembolso. O simulador não representa condições comerciais de um produto. O catálogo inicial contém Solaris e Parque das Árvores; estoque individual e tabelas vigentes devem ser cadastrados pela equipe.
+Fluxo:
 
-A gestão contém empreendedores, empreendimentos, unidades, interessados, conhecimento aprovado da Bia, auditoria e autorização de contas existentes. Rascunhos não aparecem no portal. Preços exigem validade. Materiais e imagens cadastrados para divulgação são públicos: não envie documentos pessoais por esses campos.
+`Navegador → /api/bia → futura-enterprise-bia → enterprise-bia-agent-gateway`
 
-## Autenticação e backend
+`WhatsApp → bia-whatsapp-replies → enterprise-bia-agent-gateway`
 
-A gestão usa Supabase Auth e exige associação específica em `fcp_members`. Não há inscrição administrativa pública nem senha padrão. A conta autorizada do administrador foi preservada. Tokens de sessão ficam na aba; não há senha no código.
+`futura-enterprise-bia` é um adaptador de transporte e sessão, não um agente. O texto da resposta do gateway é devolvido sem reescrita. Modelo e raciocínio seguem a configuração central do Enterprise. Estoque, condições comerciais, simulações e materiais vêm das ferramentas autorizadas desse mesmo agente. Uma indisponibilidade central é informada; não é substituída por respostas inventadas por outro modelo.
 
-O backend utiliza o projeto Supabase já existente, com tabelas próprias `fcp_*` e políticas RLS. A separação é lógica, não um novo projeto físico de banco. Os cadastros e as políticas legadas `fc_*` de outros protótipos não foram alterados.
+A experiência atual é `solaris`, a mesma utilizada pelo canal WhatsApp consultado. O catálogo multimarcas do portal continua com gestão própria. Publicar outro empreendimento no catálogo visual não o adiciona automaticamente ao estoque ou ao conhecimento comercial do Enterprise; essa habilitação precisa ocorrer também na central.
 
-A função Supabase `futura-portal` atende o portal. Conversas possuem credencial aleatória, expiração e limites de requisições. Dados de interessados não podem ser lidos anonimamente. Pedidos possuem identificador idempotente para evitar duplicação em tentativas repetidas. O backend registra o pedido, mas não confirma agenda, não reserva unidade e não envia mensagens externas automaticamente.
+## Landing Solaris no conhecimento compartilhado
 
-## Bia e disponibilidade do provedor
+O endereço de apresentação e cadastro foi adicionado aos fatos aprovados e às orientações da experiência `solaris`, preservando os demais registros. Assim, site e WhatsApp recebem a mesma referência nas próximas consultas.
 
-A integração de IA usa a credencial já armazenada de forma criptografada na infraestrutura, sem copiá-la para o navegador ou para este repositório. A ponte de servidor utiliza `fcp_ai_begin` e `fcp_ai_result`, restritas ao serviço. O endpoint do provedor é fixo. O modelo configurado nessa ponte é `gpt-5.4-mini`, disponível para a conta consultada.
+A Bia pode informar o link quando o visitante pedir site, apresentação, página ou cadastro. A orientação compartilhada esclarece que o book pode ser acessado sem cadastro, que abrir a página não significa cadastro concluído e que o formulário não reserva lote. Preços, disponibilidade e condições continuam dependentes das consultas em tempo real.
 
-**No teste de 16/09/2026, o provedor retornou HTTP 429, `credit_balance_exhausted` / `insufficient_quota`.** A IA generativa não deve ser declarada operacional enquanto a conta não voltar a autorizar as chamadas. Nenhuma recarga foi contratada. O atendimento continua em **modo guiado**, identificado na interface. A próxima conversa tenta a integração novamente; uma credencial configurada não prova que existe saldo.
+Foi criado também o item de conhecimento de URL na central. A entrega à IA é feita diretamente pelos fatos aprovados; não se declara que esse item foi indexado em um armazenamento vetorial.
 
-## Verificação
+## Sessões e proteção de informações
 
-`build-portal.mjs` verifica sintaxe, regras básicas de seleção, segurança de URLs e hashes das imagens. `verify-portal.mjs` testa serviços públicos com dados sintéticos e registra separadamente o modo efetivo da Bia. O workflow de verificação não trata o fallback como sucesso generativo. Registros de teste são identificados explicitamente e devem ser removidos pelo UUID de envio indicado no relatório após a conferência.
+Uma conversa nova recebe token aleatório e um vínculo exclusivo com uma conversa central. O adaptador não aceita do navegador outro empreendimento, identificador de conversa, prompt, modelo ou condição de operador. A autorização administrativa do navegador nunca é encaminhada ao gateway público.
 
-A interface foi exercitada separadamente em navegador com respostas de teste, incluindo filtros, favoritos, comparação, simulação, formulário e editor administrativo. Isso não substitui autenticação real com a senha pessoal do administrador.
+O mesmo agente não implica unir históricos pessoais automaticamente. Um telefone digitado no site não dá acesso a conversas anteriores de WhatsApp. As credenciais de sessão são específicas, e acesso por token de outra sessão é negado.
 
-## Domínio
+A sessão local expira em 24 horas. Encerrar ou reiniciar remove o vínculo local e fecha a sessão correspondente na central, sem apagar o histórico comercial do Enterprise. A interface informa isso antes de iniciar e antes de reiniciar. Sessões antigas do agente separado não são importadas silenciosamente para a nova central. O usuário precisa iniciar uma nova conversa e confirmar a versão de consentimento `enterprise-bia-v1`.
 
-A publicação atual utiliza o domínio Vercel acima. Esta entrega não alterou os servidores DNS nem o Registro.br e não declara concluída a vinculação de `futuracasa.terraragroup.com.br`.
+## Catálogo e solicitações
+
+O portal mantém filtros, favoritos locais, comparação, detalhes, pedidos de atendimento/visita/proposta e planejamento matemático hipotético. Esse planejamento não é a simulação comercial: quando solicitada à Bia, a simulação comercial usa o cálculo canônico do Enterprise.
+
+As conversas e ações comerciais da Bia são registradas na central Enterprise. Os formulários do portal continuam registrados em `fcp_leads`, no módulo Interessados deste painel, com identificador idempotente para evitar duplicações. O adaptador usa a função legada `futura-portal` apenas para a operação de formulário `lead`, nunca para gerar as respostas do chat.
+
+A tela Conhecimento da Bia passa a orientar a gestão pela central Enterprise. Os antigos registros `fcp_knowledge` não alimentam a nova conversa. Eles foram preservados como dados legados, não apagados.
+
+## Verificações
+
+- `build-portal.mjs`: sintaxe dos módulos, regras de URLs/seleção e integridade das imagens.
+- `tests/bia-enterprise-contract.mjs`: compara a resposta do adaptador com o replay da mesma requisição no gateway nativo, usando apenas a sessão de teste. Também verifica o link oficial na resposta, consulta de estoque por ferramenta nativa, recusa de token incorreto e encerramento da sessão.
+- `tests/bia-enterprise-browser.mjs`: testa os fluxos publicados em navegador desktop e viewport móvel, incluindo link clicável, identificação do agente, transporte de mesma origem e encerramento com preservação do histórico.
+
+O teste de contrato passou na implantação 2.0, com runtime central `bia-commercial-v10`, resposta canônica idêntica e consulta real de ferramenta comercial. A disponibilidade atual deve ser aferida novamente pelos testes. Os testes não enviam mensagens a números de WhatsApp nem solicitam reservas.
