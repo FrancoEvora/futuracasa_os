@@ -1,0 +1,48 @@
+name: Unify Enterprise Bia
+on:
+  push:
+    paths:
+      - '.github/workflows/unify-enterprise-bia.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: unify-enterprise-bia
+  cancel-in-progress: false
+jobs:
+  unify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify exact central-agent contract and ERP tools
+        run: node tests/bia-enterprise-contract.mjs
+      - name: Apply reviewed source migration
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import assert from 'node:assert/strict';
+          const file='scripts/unify-enterprise-bia.mjs';
+          let script=fs.readFileSync(file,'utf8');
+          const old="build=once(build,\"'config.js','core.mjs','app.js','admin.js'\",\"'config.js','core.mjs','app.js','admin.js','bia-enterprise.mjs'\",'distribution module');";
+          assert.equal(script.split(old).length,2);
+          script=script.replace(old,"assert.equal(build.split(\"'config.js','core.mjs','app.js','admin.js'\").length,3,'Both module lists must be updated');build=build.replaceAll(\"'config.js','core.mjs','app.js','admin.js'\",\"'config.js','core.mjs','app.js','admin.js','bia-enterprise.mjs'\");");
+          fs.writeFileSync(file,script);
+          NODE
+          node scripts/unify-enterprise-bia.mjs
+          node build-portal.mjs
+          node --check api/bia.js
+      - name: Commit only reviewed portal sources
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add portal-v1/app.js portal-v1/admin.js portal-v1/index.html portal-v1/styles.css api/bia.js build-portal.mjs vercel.json scripts/unify-enterprise-bia.mjs
+          git commit -m 'feat(bia): site uses exact Enterprise and WhatsApp agent; shared Solaris landing'
+          git push origin HEAD:main
+      - name: Store verification without tokens or personal data
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bia-enterprise-contract
+          path: bia-enterprise-contract.json
+          retention-days: 3
