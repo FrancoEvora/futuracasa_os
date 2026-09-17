@@ -70,7 +70,7 @@ proxy=once(proxy,"body.action==='chat'?43000:18000","body.action==='chat'?87000:
 proxy=proxy.replace("'same-origin-v1'","'same-origin-enterprise-v2'");
 updates.set('api/bia.js',proxy);
 let build=read('build-portal.mjs');
-build=once(build,"'config.js','core.mjs','app.js','admin.js'","'config.js','core.mjs','app.js','admin.js','bia-enterprise.mjs'",'distribution module');
+assert.equal(build.split("'config.js','core.mjs','app.js','admin.js'").length,3,'Both module lists must be updated');build=build.replaceAll("'config.js','core.mjs','app.js','admin.js'","'config.js','core.mjs','app.js','admin.js','bia-enterprise.mjs'");
 // The syntax loop uses the same sequence in a separate expression on the current baseline.
 if(build.includes("['config.js','core.mjs','app.js','admin.js']"))build=build.replace("['config.js','core.mjs','app.js','admin.js']","['config.js','core.mjs','app.js','admin.js','bia-enterprise.mjs']");
 build=build.replace("version:'1.0.0'","version:'2.0.0'");

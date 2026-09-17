@@ -4,13 +4,13 @@ const path=require('node:path');
 const net=require('node:net');
 const config=fs.readFileSync(path.join(__dirname,'../portal-v1/config.js'),'utf8');
 const publicKey=config.match(/key:'([^']+)'/)?.[1];
-const destination='https://qsdffayasuzsmngteika.supabase.co/functions/v1/futura-portal';
+const destination='https://qsdffayasuzsmngteika.supabase.co/functions/v1/futura-enterprise-bia';
 const canonical='https://futuracasa-os.vercel.app';
 const allowed=new Set([canonical,'https://futuracasa-os-franco-3095s-projects.vercel.app','https://futuracasa-os-git-main-franco-3095s-projects.vercel.app','https://futuracasa.terraragroup.com.br','https://www.futuracasa.com.br','https://futuracasa.com.br']);
 const actions=new Set(['health','start','chat','erase','lead']);
 const one=v=>Array.isArray(v)?v[0]:v||'';
 module.exports=async(req,res)=>{
- res.setHeader('Cache-Control','no-store');res.setHeader('X-FCP-Transport','same-origin-v1');
+ res.setHeader('Cache-Control','no-store');res.setHeader('X-FCP-Transport','same-origin-enterprise-v2');
  const fail=(status,error,code)=>res.status(status).json({error,code});
  const origin=one(req.headers.origin);
  if(origin&&!allowed.has(origin)&&!/^https:\/\/futuracasa-[a-z0-9]{9}-franco-3095s-projects\.vercel\.app$/.test(origin))return fail(403,'Abra a conversa pelo portal da Futura Casa.','ORIGIN_NOT_ALLOWED');
@@ -23,7 +23,7 @@ module.exports=async(req,res)=>{
   if(!publicKey)return fail(503,'Atendimento temporariamente indisponível.','CONFIGURATION');
   const headers={'Content-Type':'application/json',apikey:publicKey,Authorization:'Bearer '+publicKey,Origin:canonical};
   const ip=one(req.headers['x-forwarded-for']).split(',')[0].trim();if(net.isIP(ip))headers['x-forwarded-for']=ip;
-  const upstream=await fetch(destination,{method:'POST',headers,body:payload,redirect:'error',signal:AbortSignal.timeout(body.action==='chat'?43000:18000)});
+  const upstream=await fetch(destination,{method:'POST',headers,body:payload,redirect:'error',signal:AbortSignal.timeout(body.action==='chat'?87000:25000)});
   let result;try{result=await upstream.json();}catch{return fail(502,'O atendimento não respondeu corretamente. Tente novamente em instantes.','INVALID_UPSTREAM_RESPONSE');}
   if(upstream.status>=500)return fail(503,'A Bia está temporariamente indisponível. Tente novamente em instantes.','SERVICE_UNAVAILABLE');
   return res.status(upstream.status).json(result);
