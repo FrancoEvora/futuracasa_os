@@ -1,0 +1,6 @@
+import {arrowMarkup,arrowPattern} from './icons.mjs';
+const controls='a,button,.preview-icon';
+function replaceText(node){const parent=node.parentElement;if(!parent||!parent.closest(controls)||parent.closest('svg,textarea,select,pre,code,[contenteditable]')||!/[↗→←↑↓]/.test(node.data))return;const fragment=document.createDocumentFragment();let last=0;for(const match of node.data.matchAll(arrowPattern)){fragment.append(document.createTextNode(node.data.slice(last,match.index)));const template=document.createElement('template');template.innerHTML=arrowMarkup(match[0]);fragment.append(template.content);last=match.index+match[0].length;}fragment.append(document.createTextNode(node.data.slice(last)));node.replaceWith(fragment);}
+function enhance(root){if(root.nodeType===Node.TEXT_NODE){replaceText(root);return;}if(root.nodeType!==Node.ELEMENT_NODE)return;const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);nodes.forEach(replaceText);}
+enhance(document.body);
+new MutationObserver(records=>{for(const record of records){if(record.type==='characterData')replaceText(record.target);else record.addedNodes.forEach(enhance);}}).observe(document.body,{childList:true,subtree:true,characterData:true});
