@@ -5,7 +5,7 @@ import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 const root=path.dirname(fileURLToPath(import.meta.url)),src=path.join(root,'portal-v1'),out=path.join(root,'dist');
-const files=['index.html','admin.html','styles.css','config.js','core.mjs','app.js','admin.js','bia-enterprise.mjs','platform.css','experience.js','profissional.html','professional.js','pro-client.mjs','corretor.html','broker.js','indique.html','referral.js','privacidade.html'];
+const files=['index.html','admin.html','styles.css','config.js','core.mjs','app.js','admin.js','bia-enterprise.mjs','password-toggle.js','password-toggle.css','project-details.mjs','listing.js','platform.css','experience.js','profissional.html','professional.js','pro-client.mjs','corretor.html','broker.js','indique.html','referral.js','privacidade.html'];
 for(const name of files.filter(n=>/\.(mjs|js)$/.test(n))){execFileSync(process.execPath,['--input-type=module','--check'],{input:fs.readFileSync(path.join(src,name),'utf8'),stdio:['pipe','pipe','pipe']});console.log('Syntax OK: '+name);}
 const core=await import('./portal-v1/core.mjs');
 assert.equal(core.escapeHTML('<script>"&'), '&lt;script&gt;&quot;&amp;');
@@ -27,5 +27,5 @@ for(const [name,hash] of Object.entries(expected)){const bytes=Buffer.from(asset
 fs.writeFileSync(path.join(out,'assets','favicon.svg'),'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#171713"/><path d="M14 17h36v25H29L17 51v-9h-3z" fill="none" stroke="#f57c25" stroke-width="4" stroke-linejoin="round"/><g fill="#f57c25"><circle cx="24" cy="30" r="2.4"/><circle cx="33" cy="30" r="2.4"/><circle cx="42" cy="30" r="2.4"/></g></svg>');
 fs.writeFileSync(path.join(out,'robots.txt'),'User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /admin.html\nDisallow: /gestao\n');
 const hashes=Object.fromEntries(files.map(n=>[n,createHash('sha256').update(fs.readFileSync(path.join(out,n))).digest('hex')]));
-fs.writeFileSync(path.join(out,'release.json'),JSON.stringify({name:'Futura Casa Portal',version:'3.0.0',built_at:new Date().toISOString(),commit:process.env.VERCEL_GIT_COMMIT_SHA||null,checks:{javascript_syntax:true,url_safety:true,selection_rules:true,brand_asset_integrity:true},files:hashes},null,2));
+fs.writeFileSync(path.join(out,'release.json'),JSON.stringify({name:'Futura Casa Portal',version:'3.0.1',built_at:new Date().toISOString(),commit:process.env.VERCEL_GIT_COMMIT_SHA||null,checks:{javascript_syntax:true,url_safety:true,selection_rules:true,brand_asset_integrity:true},files:hashes},null,2));
 console.log('Futura Casa Portal built successfully. Only dist/ is published. Legacy application files are not included.');
