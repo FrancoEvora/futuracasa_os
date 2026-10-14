@@ -1,0 +1,3 @@
+import fs from 'node:fs';import vm from 'node:vm';const context={window:{}};vm.runInNewContext(fs.readFileSync(new URL('../portal-v1/config.js',import.meta.url),'utf8'),context);const c=context.window.FCP;
+const r=await fetch(c.url+'/auth/v1/settings',{headers:{apikey:c.key}});const s=await r.json();console.log(JSON.stringify({auth_status:r.status,email_enabled:s.external?.email,signup_disabled:s.disable_signup,email_confirmation:s.mailer_autoconfirm===false}));
+const health=await fetch('https://www.futuracasa.com.br/api/bia',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'health'})});const h=await health.json();console.log(JSON.stringify({bia_http_status:health.status,health:h}));

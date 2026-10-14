@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+const root=new URL('../',import.meta.url),read=n=>fs.readFileSync(new URL(n,root),'utf8'),write=(n,s)=>fs.writeFileSync(new URL(n,root),s);
+let app=read('portal-v1/app.js');
+app=app.replace('<h3><button data-action="detail" data-id="${esc(p.id)}">${esc(p.name)}</button></h3>','<h3><a href="/empreendimentos/${encodeURIComponent(p.slug)}.html">${esc(p.name)}</a></h3>');
+app=app.replace('renderCatalog();}catch{\',\'','renderCatalog();}catch{\',\'');
+app=app.replace('renderCatalog();}catch{$(\'#results-count\')',`renderCatalog();const query=new URLSearchParams(location.search),requested=projects.find(p=>p.slug===query.get('projeto'));if(requested){if(query.get('acao')==='detalhes')detail(requested.id);else contact(requested.id,query.get('acao')==='visita'?'visita':'proposta');}else if(query.get('acao')==='privacidade')contact();}catch{$('#results-count')`);
+write('portal-v1/app.js',app);
+let pro=read('portal-v1/professional.js');const start=pro.indexOf('function renderContent()'),end=pro.indexOf('function renderCalendar()');pro=pro.slice(0,start)+pro.slice(start,end).replaceAll('\\\\n','\\n')+pro.slice(end);
+pro=pro.replace("auth('signup',","auth('signup?redirect_to='+encodeURIComponent(location.origin+'/profissional.html'),").replace("auth('recover',","auth('recover?redirect_to='+encodeURIComponent(location.origin+'/profissional.html'),");write('portal-v1/professional.js',pro);
+const config=JSON.parse(read('vercel.json'));config.headers.push({source:'/profissional.html',headers:[{key:'Cache-Control',value:'no-store'},{key:'X-Robots-Tag',value:'noindex, nofollow'}]});write('vercel.json',JSON.stringify(config,null,2)+'\n');

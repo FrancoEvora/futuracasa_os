@@ -1,0 +1,4 @@
+const form=document.querySelector('#referral-form'),status=document.querySelector('#referral-status');
+form.project.onchange=()=>{form.link.value=location.origin+(form.project.value?'/empreendimentos/'+encodeURIComponent(form.project.value)+'.html':'/');status.textContent='';};
+form.onsubmit=async ev=>{ev.preventDefault();try{await navigator.clipboard.writeText('Conheça esta possibilidade na Futura Casa: '+form.link.value);status.textContent='Convite copiado. Cole na conversa que escolher.';}catch{form.link.select();status.textContent='Selecione e copie o link acima.';}};
+document.querySelector('#native-share').onclick=async()=>{if(navigator.share){try{await navigator.share({title:'Conheça a Futura Casa',url:form.link.value});}catch(err){if(err.name!=='AbortError')status.textContent='Não foi possível compartilhar. Copie o link acima.';}}else form.requestSubmit();};
